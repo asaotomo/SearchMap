@@ -29,6 +29,8 @@ sudo apt-get install python-pip
 ```
 $ python3 searchmap.py -u  https://www.baidu.com
 ```
+<img width="1439" alt="image" src="https://user-images.githubusercontent.com/67818638/132992898-48d91ffb-2cc4-4da6-9a4d-ac00cb998548.png">
+
 
 **2.-p 使用nmap进行隐式端口扫描**
 
@@ -80,7 +82,7 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 
 
-*PS：安全小白一枚，第一次写工具有很多BUG，欢迎大家提交Issues*
+*PS：安全小白一枚，第一次写工具有很多BUG，欢迎大家提交Issues.*
 
 ****************************
 
