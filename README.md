@@ -37,18 +37,21 @@ $ python3 searchmap.py -u  https://www.baidu.com
 ```
 $ python3 searchmap.py -u  https://www.baidu.com -p
 ```
+<img width="1439" alt="image" src="https://user-images.githubusercontent.com/67818638/132992984-3ac8b0c0-1093-43ea-b5a3-666b27514b04.png">
 
 **3.-r 批量扫描网站基本信息**
 
 ```
 $ python3 searchmap.py -r myurl.txt  
 ```
+<img width="1439" alt="image" src="https://user-images.githubusercontent.com/67818638/132993016-c8dd3755-ba5f-4c45-913a-e87e9354131a.png">
 
 **4.-n 使用超级ping来判断目标是否使用cdn加速**
 
 ```
 $ python3 searchmap.py -u  https://www.baidu.com -n
 ```
+<img width="1438" alt="image" src="https://user-images.githubusercontent.com/67818638/132993047-6bb10167-6c04-42bf-b5a9-a6d40068bd8b.png">
 
 **5.-d 对网站目录进行多进程扫描探测，能够自动识别伪响应页面 **
 
@@ -57,6 +60,7 @@ PS:程序使用的默认字典为dict/fuzz.txt，用户可自行替换字典内�
 ```
 $ python3 searchmap.py -u  https://www.baidu.com  -d
 ```
+<img width="1420" alt="image" src="https://user-images.githubusercontent.com/67818638/132993085-a79eaf65-550a-4d07-89bb-4d5bdd75279a.png">
 
 **6.-s 对输入域名的进行子域名爆破 **
 
@@ -65,6 +69,7 @@ PS:程序使用的默认字典为dict/subdomain.txt，用户可自行替换字�
 ```
 $ python3 searchmap.py -u  https://www.baidu.com  -s
 ```
+<img width="1438" alt="image" src="https://user-images.githubusercontent.com/67818638/132993137-f0a52d2b-2c8c-441f-8433-b63c84aeefa4.png">
 
 **6.-a 对目标域名进行全功能扫描 **
 
