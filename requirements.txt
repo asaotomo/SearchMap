@@ -1,0 +1,5 @@
+requests==2.21.0
+python_whois==0.7.3
+python_nmap==0.6.4
+colorama==0.4.4
+tqdm==4.61.0
