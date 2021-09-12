@@ -80,7 +80,7 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 
 
-*PS：安全小白一枚，第一次写工具有很多BUG，欢迎大家提交issue*
+*PS：安全小白一枚，第一次写工具有很多BUG，欢迎大家提交Issues*
 
 ****************************
 
