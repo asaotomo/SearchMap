@@ -71,13 +71,13 @@ $ python3 searchmap.py -u  https://www.baidu.com  -s
 ```
 <img width="1438" alt="image" src="https://user-images.githubusercontent.com/67818638/132993137-f0a52d2b-2c8c-441f-8433-b63c84aeefa4.png">
 
-**6.-a 对目标域名进行全功能扫描 **
+**7.-a 对目标域名进行全功能扫描 **
 
 ```
 $ python3 searchmap.py -u  https://www.baidu.com  -a
 ```
 
-**7.组合用法**
+**8.组合用法**
 
 ```
 $ python3 searchmap.py -u  https://www.baidu.com -p -n -d -s
