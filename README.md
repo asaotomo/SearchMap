@@ -46,7 +46,7 @@ $ python3 searchmap.py -r myurl.txt
 ```
 <img width="1439" alt="image" src="https://user-images.githubusercontent.com/67818638/132993016-c8dd3755-ba5f-4c45-913a-e87e9354131a.png">
 
-**4.-n 使用超级ping来判断目标是否使用cdn加速**
+**4.-n 使用多地ping来判断目标是否使用cdn加速**
 
 ```
 $ python3 searchmap.py -u  https://www.baidu.com -n
