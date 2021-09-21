@@ -11,6 +11,7 @@ import string
 import colorama
 from tqdm import tqdm
 import multiprocessing
+import sys
 
 
 # 当前软件版本信息
@@ -22,8 +23,8 @@ def banner():
 \___ \ / _ \/ _` | '__/ __| '_ \| |\/| |/ _` | '_ \ 
  ___) |  __/ (_| | | | (__| | | | |  | | (_| | |_) |
 |____/ \___|\__,_|_|  \___|_| |_|_|  |_|\__,_| .__/ 
-                                             |_|    V1.0.0      \033[0m""")
-    print("\033[1;32m#Coded by Asaotomo  Update:2021.09.12\033[0m")
+                                             |_|    V1.0.1      \033[0m""")
+    print("\033[1;32m#Coded by Asaotomo  Update:2021.09.21\033[0m")
 
 
 # nmap端口扫描模块
@@ -420,6 +421,22 @@ def switch(url, port, nping, dirscan, subscan, fullscan):
     print()
 
 
+# 日志功能
+class Logger(object):
+    def __init__(self, filename="Default.log"):
+        self.terminal = sys.stdout
+        self.log = open(filename, "w+")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(
+            "{}".format(message).replace("[1;31m", "").replace("[1;32m", "").replace("[36m", "").replace(
+                "[34m", "").replace("[0m", ""))
+
+    def flush(self):
+        pass
+
+
 # 主程序入口
 if __name__ == '__main__':
     banner()
@@ -433,6 +450,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dirscan', help='Scan target directory', action='store_true')
     parser.add_argument('-s', '--subscan', help='Scan target subdomain', action='store_true')
     parser.add_argument('-a', '--fullscan', help='Use all options', action='store_true')
+    parser.add_argument('-o', '--outlog', help='Output log')
     args = parser.parse_args()
     url = args.url
     filename = args.read
@@ -441,6 +459,9 @@ if __name__ == '__main__':
     dirscan = args.dirscan
     subscan = args.subscan
     fullscan = args.fullscan
+    outlog = args.outlog
+    if outlog:
+        sys.stdout = Logger(outlog)
     if filename is not None:
         url_list = bat_scan(filename)
         print("\033[1;32m[Total_task]:\033[0m\033[36m{}\033[0m".format(len(url_list)))
@@ -449,10 +470,11 @@ if __name__ == '__main__':
             try:
                 i += 1
                 url = url.replace("\n", "")
-                print("\033[1;32m\n[Task_{}]:\033[0m\033[36m{}\033[0m".format(i, url))
+                print("\033[1;32m[Task_{}]:\033[0m\033[36m{}\033[0m".format(i, url))
                 switch(check_head(url), port, nping, dirscan, subscan, fullscan)
             except Exception as e:
                 print('\033[1;31m[Error]:{}\033[0m'.format(e))
     else:
         if url:
+            print("\033[1;32m[Task]:\033[0m\033[36m{}\033[0m".format(url))
             switch(check_head(url), port, nping, dirscan, subscan, fullscan)
