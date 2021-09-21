@@ -77,7 +77,13 @@ $ python3 searchmap.py -u  https://www.baidu.com  -s
 $ python3 searchmap.py -u  https://www.baidu.com  -a
 ```
 
-**8.组合用法**
+**8.-o 将扫描内容保存为日志**
+
+```
+$ python3 searchmap.py -u  https://www.baidu.com  -o myscan.log
+```
+
+**9.组合用法**
 
 ```
 $ python3 searchmap.py -u  https://www.baidu.com -p -n -d -s
@@ -97,3 +103,6 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 **本程序不得用于商业用途，仅限学习交流**
 
 *********
+
+**Version1.01._UpdateLog**
+1.新增加日志功能，可以自定义是否输出系统日志
