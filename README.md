@@ -104,6 +104,6 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 *********
 
-**Version1.0.1._UpdateLog**
+**Version1.0.1_UpdateLog**
 -------------------------------------
 1.新增加日志功能，可以自定义是否输出系统日志
