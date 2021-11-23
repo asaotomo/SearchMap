@@ -23,8 +23,8 @@ def banner():
 \___ \ / _ \/ _` | '__/ __| '_ \| |\/| |/ _` | '_ \ 
  ___) |  __/ (_| | | | (__| | | | |  | | (_| | |_) |
 |____/ \___|\__,_|_|  \___|_| |_|_|  |_|\__,_| .__/ 
-                                             |_|    V1.0.1      \033[0m""")
-    print("\033[1;32m#Coded by Asaotomo  Update:2021.09.21\033[0m")
+                                             |_|    V1.0.2      \033[0m""")
+    print("\033[1;32m#Coded by Asaotomo  Update:2021.11.23\033[0m")
 
 
 # nmap端口扫描模块
@@ -47,13 +47,11 @@ def port_scan(ip_list):
 def check_ip(ip):
     ip_list = []
     for i in ip:
-        url = 'http://ip.ws.126.net/ipquery?ip={}'.format(i)
-        res = requests.get(url=url, timeout=3)
+        url = "https://ip.cn/ip/{}.html".format(i)
+        res = requests.get(url=url, timeout=10, headers=headers_lib())
         html = res.text
-        site = re.findall('{city:"(.*?)", province:"(.*?)"}', html, re.S)
-        city = site[0][0]
-        province = site[0][1]
-        result = "{}-{}-{}".format(i, province, city)
+        site = re.findall('<div id="tab0_address">(.*?)</div>', html, re.S)[0]
+        result = "{}-{}".format(i, site).replace("  ", "-").replace(" ", "-")
         ip_list.append(result)
     return ip_list
 
@@ -88,14 +86,27 @@ def get_domain(url):
 
 # 获取网页标题
 def get_title(url):
-    res = requests.get(url=url, headers=headers_lib(), verify=False)
-    res.encoding = res.apparent_encoding
-    html = res.text
     try:
+        res = requests.get(url=url, headers=headers_lib(), verify=False, timeout=3)
+        res.encoding = res.apparent_encoding
+        html = res.text
         title = re.findall("<title>(.*?)</title>", html, re.S)[0]
     except:
         title = "None"
     return title.replace(" ", "").replace("\r", "").replace("\n", "")
+
+
+# 判断输入是IP还是域名
+def isIP(str):
+    try:
+        check_ip = re.compile(
+            '^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)$')
+        if check_ip.match(str):
+            return True
+        else:
+            return False
+    except:
+        return False
 
 
 # 获取网站whois等基本信息
@@ -118,8 +129,18 @@ def get_base_info(url):
     title = get_title(url)
     print("\033[1;32m[Website_title]:\033[0m\033[36m{}\033[0m".format(
         title.replace(" ", "").replace("/r", "").replace("/n", "")))
-    whois_info = whois.whois(domain_url)
-    format_print(whois_info)
+    if isIP(domain_url):
+        url = "https://site.ip138.com/{}/".format(domain_url)
+        res = requests.get(url=url, headers=headers_lib())
+        html = res.text
+        site = re.findall('<span class="date">(.*?)</span><a href="/(.*?)/" target="_blank">(.*?)</a>', html, re.S)
+        if len(site) > 0:
+            print("\033[1;32m[The bound domain_name]:\033[0m")
+            for a, b, c in site:
+                print("\033[36m{} {}\033[0m".format(a, b))
+    else:
+        whois_info = whois.whois(domain_url)
+        format_print(whois_info)
     what_cms(url)
     return ip
 
@@ -418,7 +439,6 @@ def switch(url, port, nping, dirscan, subscan, fullscan):
     if subscan:
         print('\033[1;31m正在启动子域名扫描······\033[0m')
         sub_scan(url)
-    print()
 
 
 # 日志功能
@@ -472,6 +492,7 @@ if __name__ == '__main__':
                 url = url.replace("\n", "")
                 print("\033[1;32m[Task_{}]:\033[0m\033[36m{}\033[0m".format(i, url))
                 switch(check_head(url), port, nping, dirscan, subscan, fullscan)
+                print()
             except Exception as e:
                 print('\033[1;31m[Error]:{}\033[0m'.format(e))
     else:
