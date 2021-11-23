@@ -34,7 +34,7 @@ $ python3 searchmap.py -u  https://www.baidu.com
 ```
 $ python3 searchmap.py -u  106.53.143.192
 ```
-<img width="1431" alt="image" src="https://user-images.githubusercontent.com/67818638/143045317-1ec60616-49db-4f1c-ac5a-5fcb69b64090.png">
+<img width="1426" alt="image" src="https://user-images.githubusercontent.com/67818638/143046940-cdd2d312-e456-4db5-a564-1407f0b3a3de.png">
 
 
 **2.-p 使用nmap进行隐式端口扫描**
