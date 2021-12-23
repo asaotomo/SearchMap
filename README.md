@@ -109,7 +109,7 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 *********
 ![image](https://user-images.githubusercontent.com/67818638/147059230-2c2b306c-cb18-432e-bccc-ce7115ccea23.png)
-<img width="310" alt="iShot2021-12-23 15 38 28" src="https://user-images.githubusercontent.com/67818638/147205520-1cd4b3a4-aad6-48af-be74-9d2dc85f9e7d.png">
+<img width="318" alt="iShot2021-12-23 15 42 05" src="https://user-images.githubusercontent.com/67818638/147206433-402f9d35-7187-4417-b60c-afb0e8ec4686.png">
 
 **Version1.0.2_UpdateLog**
 -------------------------------------
