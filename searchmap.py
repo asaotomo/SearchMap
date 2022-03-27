@@ -24,7 +24,7 @@ def banner():
  ___) |  __/ (_| | | | (__| | | | |  | | (_| | |_) |
 |____/ \___|\__,_|_|  \___|_| |_|_|  |_|\__,_| .__/ 
                                              |_|    V1.0.2      \033[0m""")
-    print("\033[1;32m#Coded by Asaotomo  Update:2021.11.23\033[0m")
+    print("\033[1;32m#Coded by Asaotomo  Update:2022.03.27\033[0m")
 
 
 # nmap端口扫描模块
@@ -130,8 +130,8 @@ def get_base_info(url):
     print("\033[1;32m[Website_title]:\033[0m\033[36m{}\033[0m".format(
         title.replace(" ", "").replace("/r", "").replace("/n", "")))
     if isIP(domain_url):
-        url = "https://site.ip138.com/{}/".format(domain_url)
-        res = requests.get(url=url, headers=headers_lib())
+        url_d = "https://site.ip138.com/{}/".format(domain_url)
+        res = requests.get(url=url_d, headers=headers_lib())
         html = res.text
         site = re.findall('<span class="date">(.*?)</span><a href="/(.*?)/" target="_blank">(.*?)</a>', html, re.S)
         if len(site) > 0:
