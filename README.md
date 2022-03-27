@@ -111,8 +111,6 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 **扫码加入知识星球**
 
-**FofaMap由Hx0战队开发维护**
-
 <img width="318" alt="image" src="https://user-images.githubusercontent.com/67818638/147641794-82f32969-4214-48da-9df2-764318225589.png">
 
 **扫描关注战队公众号，获取最新动态**
