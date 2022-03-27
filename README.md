@@ -108,12 +108,20 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 **本程序不得用于商业用途，仅限学习交流**
 
 *********
-![image](https://user-images.githubusercontent.com/67818638/147059230-2c2b306c-cb18-432e-bccc-ce7115ccea23.png)
-<img width="318" alt="iShot2021-12-23 15 42 05" src="https://user-images.githubusercontent.com/67818638/147206433-402f9d35-7187-4417-b60c-afb0e8ec4686.png">
 
 **扫码加入知识星球**
 
-<img width="466" alt="image" src="https://user-images.githubusercontent.com/67818638/148732165-e3f2c44b-7017-47c3-9a3c-d9ebcd18eae6.png">
+**FofaMap由Hx0战队开发维护**
+
+<img width="318" alt="image" src="https://user-images.githubusercontent.com/67818638/147641794-82f32969-4214-48da-9df2-764318225589.png">
+
+**扫描关注战队公众号，获取最新动态**
+
+<img width="318" alt="image" src="https://user-images.githubusercontent.com/67818638/149507366-4ada14db-a972-4071-bbb6-197659f61ced.png">
+
+**【知识星球】福利大放送**
+
+<img width="318" alt="image" src="https://user-images.githubusercontent.com/67818638/156556995-f3798cb1-027e-47e6-84ba-b7537d85b158.png">
 
 
 **Version1.0.2_UpdateLog**
@@ -121,6 +129,8 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 1.优化工具对IP地址的支持
 
 2.新增IP地址反查域名功能
+
+3.修复cms检测Bug
 
 *********
 
