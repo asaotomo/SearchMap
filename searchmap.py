@@ -141,7 +141,7 @@ def get_base_info(url):
     else:
         whois_info = whois.whois(domain_url)
         format_print(whois_info)
-    what_cms(url)
+    #what_cms(url)
     return ip
 
 
