@@ -174,12 +174,18 @@ def format_print(res_info):
             if res_info[key] is not None:
                 isList = True if type(res_info[key]) == list else False
                 if isList:
-                    print("\033[1;32m[{}]:\033[0m\033[36m{}\033[0m".format(key, ','.join(res_info[key])))
+                    if isinstance(res_info[key][0], str):
+                        print("\033[1;32m[{}]:\033[0m\033[36m{}\033[0m".format(key, ','.join(res_info[key])))
+                    else:
+                        value = ""
+                        for item in res_info[key]:
+                            value += "{},".format(item.strftime('%Y-%m-%d %H:%M:%S'))
+                        print("\033[1;32m[{}]:\033[0m\033[36m{}\033[0m".format(key,
+                                                                               value.rstrip(",")))
                 else:
                     print("\033[1;32m[{}]:\033[0m\033[36m{}\033[0m".format(key, res_info[key]))
         except Exception as e:
             print('\033[1;31m[Error]:{}\033[0m'.format(e))
-
 
 # 检测http头是否缺失
 def check_head(url):
