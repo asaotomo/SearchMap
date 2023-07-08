@@ -130,6 +130,8 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 3.修复cms检测Bug
 
+4.修复whois查询报错问题
+
 *********
 
 **Version1.0.1_UpdateLog**
