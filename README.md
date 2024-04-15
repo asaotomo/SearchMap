@@ -119,7 +119,7 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 **【知识星球】福利大放送**
 
-<img width="318" alt="image" src="https://user-images.githubusercontent.com/67818638/156556995-f3798cb1-027e-47e6-84ba-b7537d85b158.png">
+<img width="318" alt="image" src="https://github.com/asaotomo/ZipCracker/assets/67818638/659b508c-12ad-47a9-8df5-f2c36403c02b">
 
 
 **Version1.0.2_UpdateLog**
