@@ -1,8 +1,20 @@
-**SearchMap_V1.0.2** 
+**SearchMap_V1.0.3** 
 
-**searchmap是一款集域名解析、IP反查域名、WHOIS查询、CDN检测、端口扫描、目录扫描、子域名挖掘为一体的前渗透测试综合信息收集工具。**
+searchmap是一款集**域名解析、IP反查域名、WHOIS查询、CDN检测、端口扫描、目录扫描、子域名挖掘**为一体的前渗透测试综合信息收集工具。新版本在原版基础上进行了**全面重构**，专注于提升**稳定性、性能和结果的可靠性**。它用更健壮的API和并发模型取代了原先脆弱的网页抓取逻辑，并增加了更丰富的信息展示，旨在成为您侦察阶段的得力助手。
 ![image](https://user-images.githubusercontent.com/67818638/133013451-1d3f8310-6c17-4985-b526-9d9af9e8302c.png)
-**一.安装说明**
+
+## 一.功能特性
+
+- **域名/IP基础信息**: 快速解析域名，获取IP地址列表，并自动查询所有IP的地理位置。
+- **WHOIS查询**: 获取域名的详细注册信息。
+- **多节点DNS检测 (CDN识别)**: 通过并行查询全球多个地区的公共DNS服务器，高效、稳定地判断目标是否使用CDN或负载均衡。
+- **IP归属地查询**: 所有展示IP地址的地方（基础信息、DNS检测）都会自动附带其物理归属地，信息更直观。
+- **Nmap端口扫描**: 集成Nmap，可对目标IP进行快速的端口和服务扫描。
+- **多线程目录与子域名爆破**: 高效的并发引擎，快速对目标进行目录和子域名探测。
+- **批量处理**: 支持从文件读取多个目标进行批量扫描。
+- **日志记录**: 可将所有扫描结果输出到日志文件，方便归档和分析。
+  
+## 二.安装说明
 
 1.工具使用python3开发，请确保您的电脑上已经安装了python3环境。
 
@@ -32,9 +44,9 @@ $ python3 searchmap.py -u  https://www.baidu.com
 <img width="1439" alt="image" src="https://user-images.githubusercontent.com/67818638/132992898-48d91ffb-2cc4-4da6-9a4d-ac00cb998548.png">
 
 ```
-$ python3 searchmap.py -u  106.53.143.192
+$ python3 searchmap.py -u  123.123.123.123
 ```
-<img width="1426" alt="image" src="https://user-images.githubusercontent.com/67818638/143046940-cdd2d312-e456-4db5-a564-1407f0b3a3de.png">
+<img width="1711" height="850" alt="image" src="https://github.com/user-attachments/assets/22f7a836-7322-4a1f-8e38-3e59ae5a67bd" />
 
 
 **2.-p 使用nmap进行隐式端口扫描**
@@ -51,14 +63,14 @@ $ python3 searchmap.py -r myurl.txt
 ```
 <img width="1439" alt="image" src="https://user-images.githubusercontent.com/67818638/132993016-c8dd3755-ba5f-4c45-913a-e87e9354131a.png">
 
-**4.-n 使用多地ping来判断目标是否使用cdn加速**
+**4.-n 使用多节点DNS检测来判断目标是否使用cdn加速**
 
 ```
 $ python3 searchmap.py -u  https://www.baidu.com -n
 ```
-<img width="1438" alt="image" src="https://user-images.githubusercontent.com/67818638/132993047-6bb10167-6c04-42bf-b5a9-a6d40068bd8b.png">
+<img width="1823" height="701" alt="image" src="https://github.com/user-attachments/assets/698ba233-68a1-46d2-b79e-6666140f9172" />
 
-**5.-d 对网站目录进行多进程扫描探测，能够自动识别伪响应页面**
+**5.-d 对网站目录进行多线程扫描探测，能够自动识别伪响应页面**
 
 PS:程序使用的默认字典为dict/fuzz.txt，用户可自行替换字典内容进行FUZZ。
 
@@ -74,7 +86,7 @@ PS:程序使用的默认字典为dict/subdomain.txt，用户可自行替换字�
 ```
 $ python3 searchmap.py -u  https://www.baidu.com  -s
 ```
-<img width="1438" alt="image" src="https://user-images.githubusercontent.com/67818638/132993137-f0a52d2b-2c8c-441f-8433-b63c84aeefa4.png">
+<img width="1028" height="859" alt="image" src="https://github.com/user-attachments/assets/bf8e9776-f857-4308-9161-c00ddb08ad4a" />
 
 **7.-a 对目标域名进行全功能扫描**
 
@@ -88,7 +100,14 @@ $ python3 searchmap.py -u  https://www.baidu.com  -a
 $ python3 searchmap.py -u  https://www.baidu.com  -o myscan.log
 ```
 
-**9.组合用法**
+**9.-t 自定义扫描线程数**
+
+```
+# 使用50个线程进行全方位扫描，速度更快
+$ python3 searchmap.py -u https://www.baidu.com -a -t 50
+```
+
+**10.组合用法**
 
 ```
 $ python3 searchmap.py -u  https://www.baidu.com -p -n -d -s
@@ -122,6 +141,18 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 <img width="318" alt="image" src="https://github.com/asaotomo/ZipCracker/assets/67818638/659b508c-12ad-47a9-8df5-f2c36403c02b">
 
 
+*********
+**Version1.0.3_UpdateLog**
+-------------------------------------
+1. **核心重构**: 升级并发模型，使用线程池（ThreadPoolExecutor）替代多进程，显著提升I/O性能和稳定性。
+2. **功能升级-CDN检测**: 重写多地Ping（-n）功能，采用查询全球公共DNS的稳定方式，彻底解决了原先依赖网页抓取而导致功能失效的问题。
+3. **功能升级-IP归属地**: 升级IP归属地查询功能，使用稳定的`ipinfo.io` API，解决了原接口失效的问题，并为所有输出的IP地址（包括基础信息和多地DNS检测）增加了归属地显示。
+4. **BUG修复**: 修复了当URL中包含端口号时，导致域名解析失败的严重Bug。
+5. **BUG修复**: 修复了当字典文件（子域名、目录）中存在空行时，导致程序崩溃的Bug。
+6. **新增参数**: 新增`-t/--threads`参数，允许用户根据自身网络情况自定义并发线程数。
+7. **代码健壮性**: 整体代码迁移到面向对象的类结构中，消除了全局变量，并优化了多处错误处理逻辑。
+
+*********
 **Version1.0.2_UpdateLog**
 -------------------------------------
 1.优化工具对IP地址的支持
