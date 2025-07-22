@@ -4,3 +4,4 @@ python-nmap
 colorama
 tqdm
 dnspython
+tldextract
