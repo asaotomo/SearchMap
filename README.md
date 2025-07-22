@@ -34,7 +34,7 @@ $ sudo python3 get-pip.py    # 运行安装脚本。
 sudo apt-get install python-pip
 ```
 
-**二.使用方法**
+## 三.使用方法
 
 **1.-u 获取网站基本信息**
 
@@ -144,6 +144,7 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 
 <img width="318" alt="image" src="https://github.com/asaotomo/ZipCracker/assets/67818638/659b508c-12ad-47a9-8df5-f2c36403c02b">
 
+## 四.更新日志
 
 *********
 **Version1.0.3_UpdateLog**
