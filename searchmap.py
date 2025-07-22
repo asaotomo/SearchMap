@@ -15,6 +15,7 @@ import colorama
 import sys
 import os
 import dns.resolver
+import tldextract
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -32,7 +33,7 @@ def banner():
 \___ \ / _ \/ _` | '__/ __| '_ \| |\/| |/ _` | '_ \ 
  ___) |  __/ (_| | | | (__| | | | |  | | (_| | |_) |
 |____/ \___|\__,_|_|  \___|_| |_|_|  |_|\__,_| .__/ 
-                                             |_|    V1.0.3 
+                                             |_|    V1.0.3
     """)
     print(colorama.Fore.GREEN + "# Coded by Asaotomo")
     print(colorama.Fore.GREEN + "# Last Updated: 2025.07.22")
@@ -65,7 +66,7 @@ class Logger(object):
 class SearchMap:
     def __init__(self, target, threads=20):
         self.target_raw = target
-        self.target_url = self._normalize_url(target)
+        self.target_url = self._normalize_url(target) # This will be used for domain targets
         self.target_domain = self._get_domain_from_url(self.target_url)
         self.threads = threads
         self.headers = self._get_random_header()
@@ -85,7 +86,7 @@ class SearchMap:
     @staticmethod
     def _normalize_url(url):
         if not re.match(r'http(s)?://', url):
-            print(colorama.Fore.YELLOW + "[Info] Target URL does not have a scheme, trying https://")
+            # For IP addresses, this default might be overridden later by smart check
             return "https://" + url
         return url
 
@@ -147,7 +148,6 @@ class SearchMap:
             return
 
         if self.ip_list:
-            # 并行查询所有IP的归属地
             ip_to_location = {}
             with ThreadPoolExecutor(max_workers=len(self.ip_list) or 1) as executor:
                 future_to_ip = {executor.submit(self._get_ip_location, ip): ip for ip in self.ip_list}
@@ -160,22 +160,55 @@ class SearchMap:
                         ip_to_location[ip] = "Lookup Failed"
 
             ips_with_location = [f"{ip}({ip_to_location.get(ip, 'N/A')})" for ip in self.ip_list]
-
             if len(ips_with_location) > 1:
                 self._print_info("IP Addresses", ", ".join(ips_with_location))
                 print(colorama.Fore.YELLOW + "[Ps] Multiple IPs found, CDN may be in use.")
             elif ips_with_location:
                 self._print_info("IP Address", ips_with_location[0])
         
-        try:
-            res = self.session.get(self.target_url, verify=False, timeout=5)
-            res.encoding = res.apparent_encoding
-            title_match = re.search("<title>(.*?)</title>", res.text, re.S)
-            title = title_match.group(1).strip() if title_match else "No Title Found"
-            self._print_info("Website Title", title)
-        except requests.RequestException as e:
-            self._print_info("Website Title", f"Failed to fetch title: {e}", color=colorama.Fore.RED)
+        # --- 智能获取网站标题 ---
+        url_for_title = None
+        netloc = self.target_url.split("://")[1].split("/")[0]
+
+        if self._is_ip(self.target_domain):
+            # The target is an IP. Check if a port was specified in the original input.
+            if ":" in netloc:
+                # A port was specified (e.g., "10.204.1.249:65000"). Use the full URL directly.
+                url_for_title = self.target_url
+            else:
+                # No port was specified (it was a pure IP). Check common web ports.
+                print(colorama.Fore.YELLOW + "[Info] Target is an IP, checking for web ports (80, 443)...")
+                s_443 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s_443.settimeout(1.0)
+                if s_443.connect_ex((self.target_domain, 443)) == 0:
+                    url_for_title = f"https://{self.target_domain}"
+                s_443.close()
+                
+                if not url_for_title:
+                    s_80 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s_80.settimeout(1.0)
+                    if s_80.connect_ex((self.target_domain, 80)) == 0:
+                        url_for_title = f"http://{self.target_domain}"
+                    s_80.close()
+        else:
+            # For domain names, use the normalized URL from initialization.
+            url_for_title = self.target_url
+
+        # --- 获取标题 ---
+        if url_for_title:
+            try:
+                res = self.session.get(url_for_title, verify=False, timeout=5)
+                res.encoding = res.apparent_encoding
+                title_match = re.search("<title>(.*?)</title>", res.text, re.S)
+                title = title_match.group(1).strip() if title_match else "No Title Found"
+                self._print_info("Website Title", title)
+            except requests.RequestException as e:
+                self._print_info("Website Title", f"Failed to fetch title from {url_for_title}: {e}", color=colorama.Fore.RED)
+        else:
+            self._print_info("Website Title", "No web service found on common ports (80, 443)", color=colorama.Fore.YELLOW)
+
         
+        # --- IP反查或WHOIS ---
         if self._is_ip(self.target_domain):
             print(colorama.Fore.GREEN + "\n[Bound Domains on IP (Reverse IP Lookup)]:")
             try:
@@ -298,8 +331,23 @@ class SearchMap:
             print(colorama.Fore.CYAN + "  -> This domain is LIKELY NOT using a CDN.")
 
     def _dir_worker(self, path):
+        # Determine the base URL for dir scan, which needs a scheme
+        base_url_for_dir = self.target_url
+        if self._is_ip(self.target_domain):
+            # If the main target was an IP, we must have determined a working scheme
+            if "http" not in base_url_for_dir: # Check if it was already fixed
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.settimeout(0.5)
+                if s.connect_ex((self.target_domain, 443)) == 0:
+                    base_url_for_dir = f"https://{self.target_domain}"
+                elif s.connect_ex((self.target_domain, 80)) == 0:
+                     base_url_for_dir = f"http://{self.target_domain}"
+                else:
+                    return None # No web service to scan dirs
+                s.close()
+        
         try:
-            url_to_check = f"{self.target_url.rstrip('/')}/{path.strip()}"
+            url_to_check = f"{base_url_for_dir.rstrip('/')}/{path.strip()}"
             res = self.session.get(url_to_check, timeout=3, verify=False, allow_redirects=False)
             if res.status_code == 200:
                 return f"[Found] {url_to_check} (Status: 200)"
@@ -325,14 +373,10 @@ class SearchMap:
                         pbar.write(colorama.Fore.BLUE + result)
                     pbar.update(1)
 
-    def _sub_worker(self, subname):
+    def _sub_worker(self, subname, base_domain):
         subname = subname.strip()
         if not subname:
             return None
-
-        base_domain = self.target_domain
-        if base_domain.startswith("*."):
-            base_domain = base_domain[2:]
         
         domain_to_check = f"{subname}.{base_domain}"
         try:
@@ -343,6 +387,13 @@ class SearchMap:
 
     def sub_scan(self):
         print("\n" + "="*20 + " Subdomain Scan " + "="*20)
+        extracted = tldextract.extract(self.target_domain)
+        base_domain = f"{extracted.domain}.{extracted.suffix}"
+        if not extracted.domain:
+            print(colorama.Fore.RED + "[Error] Subdomain scan can only be performed on a valid domain, not an IP address.")
+            return
+
+        print(colorama.Fore.YELLOW + f"[Info] Starting scan for base domain: {base_domain}")
         try:
             with open("dict/subdomain.txt", "r", encoding='utf-8') as f:
                 sub_dict = f.readlines()
@@ -352,7 +403,7 @@ class SearchMap:
             
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
             with tqdm(total=len(sub_dict), desc="Scanning Subs", ncols=100) as pbar:
-                futures = [executor.submit(self._sub_worker, subname) for subname in sub_dict]
+                futures = [executor.submit(self._sub_worker, subname, base_domain) for subname in sub_dict]
                 for future in as_completed(futures):
                     result = future.result()
                     if result:
@@ -386,12 +437,12 @@ class SearchMap:
 def main():
     banner()
     parser = argparse.ArgumentParser(
-        description="SearchMap v2.3.2 - An automatic information collection tool for penetration testing.",
+        description="SearchMap v2.3.4 - An automatic information collection tool for penetration testing.",
         formatter_class=argparse.RawTextHelpFormatter)
     
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-u', '--url', help='Scan a single target URL (e.g., https://example.com)')
-    group.add_argument('-r', '--read', help='Batch scan targets from a file (one URL per line)')
+    group.add_argument('-u', '--url', help='Scan a single target URL or IP (e.g., https://example.com or 8.8.8.8)')
+    group.add_argument('-r', '--read', help='Batch scan targets from a file')
 
     parser.add_argument('-p', '--port', help='Scan target port(s)', action='store_true')
     parser.add_argument('-n', '--noping', help='Multi-location DNS check for CDN detection', action='store_true')
