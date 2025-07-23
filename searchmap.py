@@ -437,7 +437,7 @@ class SearchMap:
 def main():
     banner()
     parser = argparse.ArgumentParser(
-        description="SearchMap v2.3.4 - An automatic information collection tool for penetration testing.",
+        description="SearchMap v1.0.3 - An automatic information collection tool for penetration testing.",
         formatter_class=argparse.RawTextHelpFormatter)
     
     group = parser.add_mutually_exclusive_group(required=True)
