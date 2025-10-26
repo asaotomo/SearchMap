@@ -27,7 +27,7 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 def banner():
     """打印Banner和版本信息"""
     colorama.init(autoreset=True)
-    print(colorama.Fore.CYAN + """
+    print(colorama.Fore.CYAN + r"""
  ____                      _     __  __             
 / ___|  ___  __ _ _ __ ___| |__ |  \/  | __ _ _ __  
 \___ \ / _ \/ _` | '__/ __| '_ \| |\/| |/ _` | '_ \ 
