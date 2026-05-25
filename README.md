@@ -1,6 +1,6 @@
-**SearchMap_V1.1.0**
+**SearchMap_V1.2.0**
 
-searchmap是一款集**域名解析、DNS记录枚举、WHOIS查询、CDN检测、纯Python端口扫描、TLS证书识别、HTTP指纹、目录扫描、子域名挖掘、结构化导出**为一体的前渗透测试综合信息收集工具。新版本继续强化**稳定性、性能和结果可靠性**，移除了对 `nmap`、IP归属地API、反查网页等外部工具/第三方数据接口的依赖，核心侦察能力尽量由本地Python网络能力完成，适合授权安全自查和资产梳理。
+searchmap是一款集**域名解析、DNS记录枚举、WHOIS查询、CDN检测、纯Python智能端口扫描、TLS证书识别、HTTP/服务指纹、智能目录扫描、子域名挖掘、结构化导出**为一体的前渗透测试综合信息收集工具。新版本继续强化**稳定性、性能和结果可靠性**，移除了对 `nmap`、IP归属地API、反查网页等外部工具/第三方数据接口的依赖，核心侦察能力尽量由本地Python网络能力完成，适合授权安全自查和资产梳理。
 ![image](https://user-images.githubusercontent.com/67818638/133013451-1d3f8310-6c17-4985-b526-9d9af9e8302c.png)
 
 ## 一.功能特性
@@ -9,9 +9,9 @@ searchmap是一款集**域名解析、DNS记录枚举、WHOIS查询、CDN检测�
 - **DNS记录枚举**: 自动收集A、AAAA、CNAME、NS、MX、TXT、SOA、CAA等关键记录。
 - **WHOIS查询**: 获取域名的详细注册信息。
 - **多解析器DNS检测 (CDN识别)**: 并行查询多个公共DNS解析器，通过IP差异和CDN CNAME特征判断目标是否使用CDN或负载均衡。
-- **HTTP/TLS指纹**: 自动识别网站标题、Server、X-Powered-By、常见技术栈、安全响应头、robots/sitemap/security.txt，以及TLS版本、证书主体、颁发者、有效期和SHA256指纹。
-- **纯Python端口扫描**: 使用TCP connect扫描和Banner探测替代Nmap，不需要安装外部二进制工具。
-- **多线程目录与子域名爆破**: 高效的并发引擎，目录扫描内置软404基线过滤，子域名扫描内置泛解析过滤。
+- **HTTP/TLS/服务指纹**: 自动识别网站标题、Server、X-Powered-By、常见技术栈、安全响应头、favicon hash、robots/sitemap/security.txt，以及TLS版本、证书主体、颁发者、有效期和SHA256指纹。
+- **纯Python智能端口扫描**: 使用TCP connect扫描和Banner探测替代Nmap，内置`fast`、`smart`、`common/top1000`、`web`、`full`等端口集，并对开放端口进行服务/Web/TLS指纹识别。
+- **智能目录与子域名爆破**: 目录扫描使用连接池和限量读取提升速度，支持路径扩展、`%EXT%`扩展、robots/sitemap种子、软404基线过滤、敏感路径标签、递归扫描；子域名扫描内置泛解析过滤。
 - **批量处理**: 支持从文件读取多个目标进行批量扫描。
 - **日志与结构化输出**: 支持控制台日志、JSON结果和CSV发现项导出，方便归档和二次分析。
   
@@ -35,7 +35,7 @@ sudo apt-get install python-pip
 
 ## 三.使用方法
 
-> 说明：V1.1.0 输出内容会随目标、网络环境和解析器返回结果变化，旧版本终端截图已移除。以下示例以命令为准。
+> 说明：V1.2.0 输出内容会随目标、网络环境和解析器返回结果变化，旧版本终端截图已移除。以下示例以命令为准。
 
 **1.-u 获取基础信息、DNS记录、HTTP/TLS指纹**
 
@@ -53,13 +53,14 @@ $ python3 searchmap.py -u 123.123.123.123
 $ python3 searchmap.py -u https://www.baidu.com -p
 ```
 
-默认扫描内置Top 100常见端口，并对开放端口进行服务名、Banner和TLS版本探测。
+默认使用`smart`端口集，并对开放端口进行服务名、Banner、HTTP和TLS指纹探测，最后会输出指纹汇总。
 
 **3.--ports 自定义端口集合**
 
 ```
-# 支持 top100、web、单端口、逗号列表和端口范围
+# 支持 fast/top100、smart、common/top1000、web、full、单端口、逗号列表和端口范围
 $ python3 searchmap.py -u https://www.baidu.com -p --ports web
+$ python3 searchmap.py -u https://www.baidu.com -p --ports common
 $ python3 searchmap.py -u https://www.baidu.com -p --ports 80,443,8000-8100
 ```
 
@@ -82,6 +83,17 @@ PS: 程序使用的默认字典为`dict/fuzz.txt`，用户可自行替换字典�
 ```
 $ python3 searchmap.py -u https://www.baidu.com -d
 $ python3 searchmap.py -u https://www.baidu.com -d --dict dict/fuzz.txt
+```
+
+智能目录扫描参数：
+
+```
+# fast更快，smart默认更均衡，deep会增加备份文件变体和递归扫描
+$ python3 searchmap.py -u https://www.baidu.com -d --dir-mode fast
+$ python3 searchmap.py -u https://www.baidu.com -d --dir-mode deep --dir-depth 1
+
+# 自定义%EXT%扩展、关注状态码和单响应最大读取字节
+$ python3 searchmap.py -u https://www.baidu.com -d --dir-ext php,asp,aspx,jsp,html,js --dir-status 200,301,302,401,403 --max-body 32768
 ```
 
 **6.-s 对输入域名的进行子域名爆破**
@@ -129,8 +141,8 @@ $ python3 searchmap.py -u https://www.baidu.com -a -t 50 --timeout 3
 **12.组合用法**
 
 ```
-$ python3 searchmap.py -u https://www.baidu.com -p -n -d -s --ports web
-$ python3 searchmap.py -r myurl.txt -a -t 50 --timeout 3 --json-out result.json
+$ python3 searchmap.py -u https://www.baidu.com -p -n -d -s --ports smart
+$ python3 searchmap.py -r myurl.txt -a -t 50 --timeout 3 --dir-all-web --json-out result.json
 ```
 
 
@@ -161,6 +173,18 @@ $ python3 searchmap.py -r myurl.txt -a -t 50 --timeout 3 --json-out result.json
 <img width="318" alt="image" src="https://github.com/asaotomo/ZipCracker/assets/67818638/659b508c-12ad-47a9-8df5-f2c36403c02b">
 
 ## 四.更新日志
+
+*********
+**Version1.2.0_UpdateLog**
+-------------------------------------
+1. **端口扫描增强**: 默认端口集升级为`smart`，新增`fast/top100`、`common/top1000`、`web`、`full`预设，保留端口列表和范围写法。
+2. **开放端口指纹**: 对开放端口自动进行Banner、HTTP、TLS、Server、Title、技术栈和favicon hash探测，并以表格展示。
+3. **目录扫描提速**: 使用线程内连接池、HTTP keep-alive和响应体限量读取，降低大页面下载造成的拖慢。
+4. **目录扫描智能化**: 新增`--dir-mode fast|smart|deep`、`--dir-ext`、`--dir-status`、`--dir-depth`、`--dir-all-web`、`--max-body`参数。
+5. **目录发现增强**: 支持`%EXT%`自动扩展、目录斜杠变体、内置敏感路径、robots.txt和sitemap.xml种子路径。
+6. **误报过滤增强**: 优化软404判断，降低真实页面被长度相近误杀的概率。
+7. **敏感路径标签**: 对`.git`、`.env`、备份文件、数据库备份、Swagger/OpenAPI、GraphQL、后台登录、运维端点等结果自动打标签。
+8. **最终指纹汇总**: 扫描结束统一输出开放端口、Web目标、技术栈和高价值目录发现，并写入JSON/CSV结果。
 
 *********
 **Version1.1.0_UpdateLog**
