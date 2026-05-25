@@ -1,7 +1,5 @@
 requests
 python-whois
-python-nmap
 colorama
 tqdm
 dnspython
-tldextract

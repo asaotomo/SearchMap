@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*.log
+findings*.csv
+result*.json
+searchmap-*.json
+.DS_Store
