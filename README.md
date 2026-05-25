@@ -35,82 +35,27 @@ sudo apt-get install python-pip
 
 ## 三.使用方法
 
-**1.-u 获取网站基本信息**
+> 说明：V1.1.0 输出内容会随目标、网络环境和解析器返回结果变化，旧版本终端截图已移除。以下示例以命令为准。
+
+**1.-u 获取基础信息、DNS记录、HTTP/TLS指纹**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com
+$ python3 searchmap.py -u https://www.baidu.com
 ```
-<img width="1354" height="488" alt="image" src="https://github.com/user-attachments/assets/aaf380f3-a44a-493a-8396-4f19a0ec60e6" />
-
 
 ```
-$ python3 searchmap.py -u  123.123.123.123
+$ python3 searchmap.py -u 123.123.123.123
 ```
-<img width="877" height="854" alt="image" src="https://github.com/user-attachments/assets/c396b4f1-11be-4fde-9270-657e3438b351" />
-
 
 **2.-p 使用纯Python TCP connect进行端口扫描**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com -p
-```
-<img width="989" height="635" alt="image" src="https://github.com/user-attachments/assets/8e3ddaa7-28f2-4294-afed-187a990ec7f4" />
-
-
-**3.-r 批量扫描网站基本信息**
-
-```
-$ python3 searchmap.py -r myurl.txt  
-```
-<img width="1353" height="878" alt="image" src="https://github.com/user-attachments/assets/900aa197-6822-41ec-b293-af723dab34b6" />
-
-
-**4.-n 使用多节点DNS检测来判断目标是否使用cdn加速**
-
-```
-$ python3 searchmap.py -u  https://www.baidu.com -n
-```
-<img width="1823" height="701" alt="image" src="https://github.com/user-attachments/assets/698ba233-68a1-46d2-b79e-6666140f9172" />
-
-**5.-d 对网站目录进行多线程扫描探测，能够自动识别伪响应页面**
-
-PS:程序使用的默认字典为dict/fuzz.txt，用户可自行替换字典内容进行FUZZ。
-
-```
-$ python3 searchmap.py -u  https://www.baidu.com  -d
-```
-<img width="976" height="687" alt="image" src="https://github.com/user-attachments/assets/a2a4e52b-1421-40a3-8281-eb1e6fe12f45" />
-
-
-**6.-s 对输入域名的进行子域名爆破**
-
-PS:程序使用的默认字典为dict/subdomain.txt，用户可自行替换字典内容进行FUZZ。
-
-```
-$ python3 searchmap.py -u  https://www.baidu.com  -s
-```
-<img width="1028" height="859" alt="image" src="https://github.com/user-attachments/assets/bf8e9776-f857-4308-9161-c00ddb08ad4a" />
-
-**7.-a 对目标域名进行全功能扫描**
-
-```
-$ python3 searchmap.py -u  https://www.baidu.com  -a
+$ python3 searchmap.py -u https://www.baidu.com -p
 ```
 
-**8.-o 将扫描内容保存为日志**
+默认扫描内置Top 100常见端口，并对开放端口进行服务名、Banner和TLS版本探测。
 
-```
-$ python3 searchmap.py -u  https://www.baidu.com  -o myscan.log
-```
-
-**9.-t 自定义扫描线程数**
-
-```
-# 使用50个线程进行全方位扫描，速度更快
-$ python3 searchmap.py -u https://www.baidu.com -a -t 50
-```
-
-**10.--ports 自定义端口集合**
+**3.--ports 自定义端口集合**
 
 ```
 # 支持 top100、web、单端口、逗号列表和端口范围
@@ -118,25 +63,74 @@ $ python3 searchmap.py -u https://www.baidu.com -p --ports web
 $ python3 searchmap.py -u https://www.baidu.com -p --ports 80,443,8000-8100
 ```
 
-**11.--json-out / --csv-out 导出结构化结果**
+**4.-n 使用多解析器DNS检测CDN/负载均衡**
 
 ```
-$ python3 searchmap.py -u https://www.baidu.com -a --json-out result.json --csv-out findings.csv
+$ python3 searchmap.py -u https://www.baidu.com -n
 ```
 
-**12.--dict / --subdict 指定目录和子域名字典**
+也可以指定自定义解析器：
 
 ```
+$ python3 searchmap.py -u https://www.baidu.com -n --resolver 8.8.8.8 --resolver 1.1.1.1
+```
+
+**5.-d 对网站目录进行多线程扫描探测，能够自动识别伪响应页面**
+
+PS: 程序使用的默认字典为`dict/fuzz.txt`，用户可自行替换字典内容进行FUZZ。
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -d
 $ python3 searchmap.py -u https://www.baidu.com -d --dict dict/fuzz.txt
+```
+
+**6.-s 对输入域名的进行子域名爆破**
+
+PS: 程序使用的默认字典为`dict/subdomain.txt`，用户可自行替换字典内容进行FUZZ。
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -s
 $ python3 searchmap.py -u https://www.baidu.com -s --subdict dict/subdomain.txt
 ```
 
-**13.组合用法**
+**7.-a 对目标域名进行全功能扫描**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com -p -n -d -s
+$ python3 searchmap.py -u https://www.baidu.com -a
+```
 
-$ python3 searchmap.py -r  myurl.txt -p -n -d -s
+**8.-r 批量扫描目标**
+
+```
+$ python3 searchmap.py -r myurl.txt
+$ python3 searchmap.py -r myurl.txt -p -n -d -s
+```
+
+**9.-o 将控制台扫描内容保存为日志**
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -o myscan.log
+```
+
+**10.--json-out / --csv-out 导出结构化结果**
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -a --json-out result.json --csv-out findings.csv
+$ python3 searchmap.py -r myurl.txt -p -n --json-out batch-result.json --csv-out batch-findings.csv
+```
+
+**11.-t / --timeout 控制并发和超时**
+
+```
+# 使用50个线程进行全方位扫描，并将单次网络超时设为3秒
+$ python3 searchmap.py -u https://www.baidu.com -a -t 50 --timeout 3
+```
+
+**12.组合用法**
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -p -n -d -s --ports web
+$ python3 searchmap.py -r myurl.txt -a -t 50 --timeout 3 --json-out result.json
 ```
 
 
