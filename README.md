@@ -1,28 +1,27 @@
-**SearchMap_V1.0.3** 
+**SearchMap_V1.2.0**
 
-searchmap是一款集**域名解析、IP反查域名、WHOIS查询、CDN检测、端口扫描、目录扫描、子域名挖掘**为一体的前渗透测试综合信息收集工具。新版本在原版基础上进行了**全面重构**，专注于提升**稳定性、性能和结果的可靠性**。它用更健壮的API和并发模型取代了原先脆弱的网页抓取逻辑，并增加了更丰富的信息展示，旨在成为您侦察阶段的得力助手。
+searchmap是一款集**域名解析、DNS记录枚举、WHOIS查询、CDN检测、纯Python智能端口扫描、TLS证书识别、HTTP/服务指纹、智能目录扫描、子域名挖掘、结构化导出**为一体的前渗透测试综合信息收集工具。新版本继续强化**稳定性、性能和结果可靠性**，移除了对 `nmap`、IP归属地API、反查网页等外部工具/第三方数据接口的依赖，核心侦察能力尽量由本地Python网络能力完成，适合授权安全自查和资产梳理。
 ![image](https://user-images.githubusercontent.com/67818638/133013451-1d3f8310-6c17-4985-b526-9d9af9e8302c.png)
 
 ## 一.功能特性
 
-- **域名/IP基础信息**: 快速解析域名，获取IP地址列表，并自动查询所有IP的地理位置。
+- **域名/IP基础信息**: 快速解析域名，获取IPv4/IPv6地址、PTR记录和公网/内网/保留地址分类。
+- **DNS记录枚举**: 自动收集A、AAAA、CNAME、NS、MX、TXT、SOA、CAA等关键记录。
 - **WHOIS查询**: 获取域名的详细注册信息。
-- **多节点DNS检测 (CDN识别)**: 通过并行查询全球多个地区的公共DNS服务器，高效、稳定地判断目标是否使用CDN或负载均衡。
-- **IP归属地查询**: 所有展示IP地址的地方（基础信息、DNS检测）都会自动附带其物理归属地，信息更直观。
-- **Nmap端口扫描**: 集成Nmap，可对目标IP进行快速的端口和服务扫描。
-- **多线程目录与子域名爆破**: 高效的并发引擎，快速对目标进行目录和子域名探测。
+- **多解析器DNS检测 (CDN识别)**: 并行查询多个公共DNS解析器，通过IP差异和CDN CNAME特征判断目标是否使用CDN或负载均衡。
+- **HTTP/TLS/服务指纹**: 自动识别网站标题、Server、X-Powered-By、常见技术栈、安全响应头、favicon hash、robots/sitemap/security.txt，以及TLS版本、证书主体、颁发者、有效期和SHA256指纹。
+- **纯Python智能端口扫描**: 使用TCP connect扫描和Banner探测替代Nmap，内置`fast`、`smart`、`common/top1000`、`web`、`full`等端口集，并对开放端口进行服务/Web/TLS指纹识别。
+- **智能目录与子域名爆破**: 目录扫描使用连接池和限量读取提升速度，支持路径扩展、`%EXT%`扩展、robots/sitemap种子、软404基线过滤、敏感路径标签、递归扫描；子域名扫描内置泛解析过滤。
 - **批量处理**: 支持从文件读取多个目标进行批量扫描。
-- **日志记录**: 可将所有扫描结果输出到日志文件，方便归档和分析。
+- **日志与结构化输出**: 支持控制台日志、JSON结果和CSV发现项导出，方便归档和二次分析。
   
 ## 二.安装说明
 
 1.工具使用python3开发，请确保您的电脑上已经安装了python3环境。
 
-2.工具的端口扫描功能调用了nmap接口，请确保您的电脑已安装nmap。
+2.首次使用请使用 **python3 -m pip install -r requirements.txt** 命令，来安装必要的Python依赖包。端口扫描不再依赖nmap等外部二进制工具。
 
-3.首次使用请使用 **python3 -m pip install -r requirements.txt** 命令，来安装必要的外部依赖包。
-
-4.本机未安装pip工具的请使用如下命令来进行安装：
+3.本机未安装pip工具的请使用如下命令来进行安装：
 
 ```
 $ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py   # 下载安装脚本
@@ -36,87 +35,114 @@ sudo apt-get install python-pip
 
 ## 三.使用方法
 
-**1.-u 获取网站基本信息**
+> 说明：V1.2.0 输出内容会随目标、网络环境和解析器返回结果变化，旧版本终端截图已移除。以下示例以命令为准。
+
+**1.-u 获取基础信息、DNS记录、HTTP/TLS指纹**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com
+$ python3 searchmap.py -u https://www.baidu.com
 ```
-<img width="1354" height="488" alt="image" src="https://github.com/user-attachments/assets/aaf380f3-a44a-493a-8396-4f19a0ec60e6" />
-
 
 ```
-$ python3 searchmap.py -u  123.123.123.123
+$ python3 searchmap.py -u 123.123.123.123
 ```
-<img width="877" height="854" alt="image" src="https://github.com/user-attachments/assets/c396b4f1-11be-4fde-9270-657e3438b351" />
 
-
-**2.-p 使用nmap进行隐式端口扫描**
+**2.-p 使用纯Python TCP connect进行端口扫描**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com -p
+$ python3 searchmap.py -u https://www.baidu.com -p
 ```
-<img width="989" height="635" alt="image" src="https://github.com/user-attachments/assets/8e3ddaa7-28f2-4294-afed-187a990ec7f4" />
 
+默认使用`smart`端口集，并对开放端口进行服务名、Banner、HTTP和TLS指纹探测，最后会输出指纹汇总。
 
-**3.-r 批量扫描网站基本信息**
-
-```
-$ python3 searchmap.py -r myurl.txt  
-```
-<img width="1353" height="878" alt="image" src="https://github.com/user-attachments/assets/900aa197-6822-41ec-b293-af723dab34b6" />
-
-
-**4.-n 使用多节点DNS检测来判断目标是否使用cdn加速**
+**3.--ports 自定义端口集合**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com -n
+# 支持 fast/top100、smart、common/top1000、web、full、单端口、逗号列表和端口范围
+$ python3 searchmap.py -u https://www.baidu.com -p --ports web
+$ python3 searchmap.py -u https://www.baidu.com -p --ports common
+$ python3 searchmap.py -u https://www.baidu.com -p --ports 80,443,8000-8100
 ```
-<img width="1823" height="701" alt="image" src="https://github.com/user-attachments/assets/698ba233-68a1-46d2-b79e-6666140f9172" />
+
+**4.-n 使用多解析器DNS检测CDN/负载均衡**
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -n
+```
+
+也可以指定自定义解析器：
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -n --resolver 8.8.8.8 --resolver 1.1.1.1
+```
 
 **5.-d 对网站目录进行多线程扫描探测，能够自动识别伪响应页面**
 
-PS:程序使用的默认字典为dict/fuzz.txt，用户可自行替换字典内容进行FUZZ。
+PS: 程序使用的默认字典为`dict/fuzz.txt`，用户可自行替换字典内容进行FUZZ。
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com  -d
+$ python3 searchmap.py -u https://www.baidu.com -d
+$ python3 searchmap.py -u https://www.baidu.com -d --dict dict/fuzz.txt
 ```
-<img width="976" height="687" alt="image" src="https://github.com/user-attachments/assets/a2a4e52b-1421-40a3-8281-eb1e6fe12f45" />
 
+智能目录扫描参数：
+
+```
+# fast更快，smart默认更均衡，deep会增加备份文件变体和递归扫描
+$ python3 searchmap.py -u https://www.baidu.com -d --dir-mode fast
+$ python3 searchmap.py -u https://www.baidu.com -d --dir-mode deep --dir-depth 1
+
+# 自定义%EXT%扩展、关注状态码和单响应最大读取字节
+$ python3 searchmap.py -u https://www.baidu.com -d --dir-ext php,asp,aspx,jsp,html,js --dir-status 200,301,302,401,403 --max-body 32768
+```
 
 **6.-s 对输入域名的进行子域名爆破**
 
-PS:程序使用的默认字典为dict/subdomain.txt，用户可自行替换字典内容进行FUZZ。
+PS: 程序使用的默认字典为`dict/subdomain.txt`，用户可自行替换字典内容进行FUZZ。
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com  -s
+$ python3 searchmap.py -u https://www.baidu.com -s
+$ python3 searchmap.py -u https://www.baidu.com -s --subdict dict/subdomain.txt
 ```
-<img width="1028" height="859" alt="image" src="https://github.com/user-attachments/assets/bf8e9776-f857-4308-9161-c00ddb08ad4a" />
 
 **7.-a 对目标域名进行全功能扫描**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com  -a
+$ python3 searchmap.py -u https://www.baidu.com -a
 ```
 
-**8.-o 将扫描内容保存为日志**
+**8.-r 批量扫描目标**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com  -o myscan.log
+$ python3 searchmap.py -r myurl.txt
+$ python3 searchmap.py -r myurl.txt -p -n -d -s
 ```
 
-**9.-t 自定义扫描线程数**
+**9.-o 将控制台扫描内容保存为日志**
 
 ```
-# 使用50个线程进行全方位扫描，速度更快
-$ python3 searchmap.py -u https://www.baidu.com -a -t 50
+$ python3 searchmap.py -u https://www.baidu.com -o myscan.log
 ```
 
-**10.组合用法**
+**10.--json-out / --csv-out 导出结构化结果**
 
 ```
-$ python3 searchmap.py -u  https://www.baidu.com -p -n -d -s
+$ python3 searchmap.py -u https://www.baidu.com -a --json-out result.json --csv-out findings.csv
+$ python3 searchmap.py -r myurl.txt -p -n --json-out batch-result.json --csv-out batch-findings.csv
+```
 
-$ python3 searchmap.py -r  myurl.txt -p -n -d -s
+**11.-t / --timeout 控制并发和超时**
+
+```
+# 使用50个线程进行全方位扫描，并将单次网络超时设为3秒
+$ python3 searchmap.py -u https://www.baidu.com -a -t 50 --timeout 3
+```
+
+**12.组合用法**
+
+```
+$ python3 searchmap.py -u https://www.baidu.com -p -n -d -s --ports smart
+$ python3 searchmap.py -r myurl.txt -a -t 50 --timeout 3 --dir-all-web --json-out result.json
 ```
 
 
@@ -147,6 +173,31 @@ $ python3 searchmap.py -r  myurl.txt -p -n -d -s
 <img width="318" alt="image" src="https://github.com/asaotomo/ZipCracker/assets/67818638/659b508c-12ad-47a9-8df5-f2c36403c02b">
 
 ## 四.更新日志
+
+*********
+**Version1.2.0_UpdateLog**
+-------------------------------------
+1. **端口扫描增强**: 默认端口集升级为`smart`，新增`fast/top100`、`common/top1000`、`web`、`full`预设，保留端口列表和范围写法。
+2. **开放端口指纹**: 对开放端口自动进行Banner、HTTP、TLS、Server、Title、技术栈和favicon hash探测，并以表格展示。
+3. **目录扫描提速**: 使用线程内连接池、HTTP keep-alive和响应体限量读取，降低大页面下载造成的拖慢。
+4. **目录扫描智能化**: 新增`--dir-mode fast|smart|deep`、`--dir-ext`、`--dir-status`、`--dir-depth`、`--dir-all-web`、`--max-body`参数。
+5. **目录发现增强**: 支持`%EXT%`自动扩展、目录斜杠变体、内置敏感路径、robots.txt和sitemap.xml种子路径。
+6. **误报过滤增强**: 优化软404判断，降低真实页面被长度相近误杀的概率。
+7. **敏感路径标签**: 对`.git`、`.env`、备份文件、数据库备份、Swagger/OpenAPI、GraphQL、后台登录、运维端点等结果自动打标签。
+8. **最终指纹汇总**: 扫描结束统一输出开放端口、Web目标、技术栈和高价值目录发现，并写入JSON/CSV结果。
+
+*********
+**Version1.1.0_UpdateLog**
+-------------------------------------
+1. **外部工具依赖移除**: 端口扫描由Nmap改为纯Python TCP connect扫描，并加入Banner/TLS探测。
+2. **第三方数据API依赖移除**: 删除ipinfo.io归属地查询和ip138网页反查，改为本地可完成的IP分类、PTR、DNS、WHOIS、HTTP/TLS信息收集。
+3. **新增HTTP/TLS指纹**: 自动采集网站标题、响应头、技术栈、安全响应头、robots/sitemap/security.txt和TLS证书信息。
+4. **新增DNS记录枚举**: 支持A、AAAA、CNAME、NS、MX、TXT、SOA、CAA记录收集。
+5. **端口扫描增强**: 新增`--ports`参数，支持`top100`、`web`、端口列表和范围。
+6. **目录扫描增强**: 加入随机基线软404过滤，降低误报。
+7. **子域名扫描增强**: 加入泛解析识别和过滤。
+8. **结构化输出**: 新增`--json-out`和`--csv-out`，便于归档、比对和后续分析。
+9. **健壮性优化**: 重写目标解析、IPv6 URL处理、线程数限制、超时控制和错误收集。
 
 *********
 **Version1.0.3_UpdateLog**
